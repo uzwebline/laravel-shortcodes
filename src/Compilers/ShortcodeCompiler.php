@@ -413,7 +413,7 @@ class ShortcodeCompiler
      *
      * @return \Webwizo\Shortcodes\Shortcode
      */
-    protected function parseToken($token)
+    protected function parseTokenToObject($token)
     {
         list($id, $content) = $token;
         if ($id == T_INLINE_HTML) {
