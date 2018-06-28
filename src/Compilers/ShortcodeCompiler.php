@@ -380,4 +380,73 @@ class ShortcodeCompiler
     {
         return $this->registered;
     }
+    
+    /**
+     * Parse the contents
+     *
+     * @param  string $value
+     *
+     * @return array
+     */
+    public function parse($value)
+    {
+        // Only continue is laravel-shortcodes have been registered
+        if (!$this->enabled || !$this->hasShortcodes()) {
+            return $value;
+        }
+        // Set empty result
+        $result = [];
+        // Here we will loop through all of the tokens returned by the Zend lexer and
+        // parse each one into the corresponding valid PHP. We will then have this
+        // template as the correctly rendered PHP that can be rendered natively.
+        foreach (token_get_all($value) as $token) {
+            $result[] = is_array($token) ? $this->parseTokenToObject($token) : $token;
+        }
+
+        return $result;
+    }
+    
+    /**
+     * Parse the tokens from the template.
+     *
+     * @param  array $token
+     *
+     * @return \Webwizo\Shortcodes\Shortcode
+     */
+    protected function parseToken($token)
+    {
+        list($id, $content) = $token;
+        if ($id == T_INLINE_HTML) {
+            $content = $this->parseShortcodes($content);
+        }
+
+        return $content;
+    }
+    
+    /**
+     * Parse laravel-shortcodes
+     *
+     * @param  string $value
+     *
+     * @return \Webwizo\Shortcodes\Shortcode
+     */
+    protected function parseShortcodes($value)
+    {
+        $pattern = $this->getRegex();
+
+        return preg_replace_callback("/{$pattern}/s", [$this, 'parseToObject'], $value);
+    }
+    
+    /**
+     * Parse the current called shortcode.
+     *
+     * @param  array $matches
+     *
+     * @return \Webwizo\Shortcodes\Shortcode
+     */
+    public function parseToObject($matches)
+    {
+        // Compile the shortcode
+        return $this->compileShortcode($matches);        
+    }
 }
