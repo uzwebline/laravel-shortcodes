@@ -87,4 +87,20 @@ class Shortcode
     {
         return $this->compiler->strip($value);
     }
+    
+    /**
+     * Parse the given string
+     *
+     * @param  string $value
+     *
+     * @return string
+     */
+    public function parse($value)
+    {
+        // Always enable when we call the compile method directly
+        $this->enable();
+
+        // return parsed contents
+        return $this->compiler->parse($value);
+    }
 }
